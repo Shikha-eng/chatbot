@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multilingual PDF Chatbot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #9966ea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 1200px;
+            min-height: 700px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+        }
+
+        /* Login Screen */
+        .login-screen {
+            display: flex;
+            flex: 1;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .user-type-selector {
+            display: flex;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+
+        .user-type-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: #f8f9fa;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .user-type-btn.active {
+            background: #4facfe;
+            color: white;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Dashboard */
+        .dashboard {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+        }
+
+        .dashboard.active {
+            display: flex;
+        }
+
+        .dashboard-header {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .language-selector {
+            padding: 8px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .logout-btn {
+            padding: 8px 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .dashboard-content {
+            flex: 1;
+            display: flex;
+            padding: 30px;
+            gap: 30px;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            height: fit-content;
+        }
+
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f8f9fa;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        /* Admin Panel */
+        .admin-panel {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .admin-panel h3 {
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-upload-area {
+            border: 3px dashed #4facfe;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-area:hover {
+            background: #f8f9ff;
+            border-color: #0056b3;
+        }
+
+        .file-upload-area.dragover {
+            background: #f0f8ff;
+            border-color: #0056b3;
+        }
+
+        .upload-icon {
+            font-size: 48px;
+            color: #4facfe;
+            margin-bottom: 15px;
+        }
+
+        .pdf-list {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e9ecef;
+        }
+
+        .pdf-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+            transition: background 0.2s ease;
+        }
+
+        .pdf-item:hover {
+            background: #f8f9fa;
+        }
+
+        .pdf-item:last-child {
+            border-bottom: none;
+        }
+
+        .pdf-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .pdf-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn-activate {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-small:hover {
+            transform: translateY(-1px);
+        }
+
+        /* Chat Interface */
+        .chat-messages {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            max-height: 400px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .message.user .message-avatar {
+            background: #4facfe;
+        }
+
+        .message.bot .message-avatar {
+            background: #6c757d;
+        }
+
+        .message-content {
+            flex: 1;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            max-width: 70%;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .message.user .message-content {
+            background: #4facfe;
+            color: white;
+        }
+
+        .confidence-score {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .chat-input-area {
+            padding: 25px;
+            border-top: 1px solid #e9ecef;
+            background: white;
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            resize: none;
+            font-family: inherit;
+            font-size: 16px;
+            max-height: 120px;
+            min-height: 50px;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #4facfe;
+        }
+
+        .send-btn {
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #a6fe4f 0%, #e900fe 100%);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Loading States */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #4facfe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Status Messages */
+        .status-message {
+            background: #d1ecf1;
+            color: #0c5460;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border-left-color: #28a745;
+        }
+
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left-color: #dc3545;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                height: calc(100vh - 20px);
+            }
+            
+            .dashboard-content {
+                flex-direction: column;
+                padding: 15px;
+                gap: 15px;
+            }
+            
+            .sidebar {
+                width: 100%;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 Multilingual PDF Chatbot</h1>
+            <p>Smart Document Assistant with Multi-language Support</p>
+        </div>
+
+        <div class="main-content">
+            <!-- Login Screen -->
+            <div id="loginScreen" class="login-screen">
+                <div class="login-container">
+                    <div class="user-type-selector">
+                        <button class="user-type-btn active" data-type="student">
+                            👨‍🎓 Student
+                        </button>
+                        <button class="user-type-btn" data-type="admin">
+                            👨‍💼 Admin
+                        </button>
+                    </div>
+
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" required>
+                        </div>
+                        <button type="submit" class="login-btn">
+                            Sign In
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Student Dashboard -->
+            <div id="studentDashboard" class="dashboard">
+                <div class="dashboard-header">
+                    <div class="user-info">
+                        <div class="user-avatar">S</div>
+                        <div>
+                            <h3 id="studentName">Student</h3>
+                            <p>Student Portal</p>
+                        </div>
+                    </div>
+                    <div class="controls">
+                        <select id="studentLanguageSelect" class="language-selector">
+                            <option value="en">🇺🇸 English</option>
+                            <option value="hi">🇮🇳 Hindi (हिंदी)</option>
+                            <option value="mr">🇮🇳 Marathi (मराठी)</option>
+                            <option value="mwr">🇮🇳 Marwari (मारवाड़ी)</option>
+                        </select>
+                        <button class="logout-btn" onclick="logout()">Logout</button>
+                    </div>
+                </div>
+                <div class="dashboard-content">
+                    <div class="sidebar">
+                        <div class="pdf-list">
+                            <h3>📚 Available Documents</h3>
+                            <div id="availablePdfs">
+                                <p style="text-align: center; color: #6c757d; padding: 20px;">
+                                    No documents available
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-area">
+                        <div class="chat-messages" id="studentChatMessages">
+                            <div class="message bot">
+                                <div class="message-avatar">🤖</div>
+                                <div class="message-content">
+                                    <p>Welcome! Select a document from the sidebar and ask me questions about it. I can respond in your preferred language.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="loading" id="studentLoading">
+                            <div class="spinner"></div>
+                            Processing your question...
+                        </div>
+                        <div class="chat-input-area">
+                            <div class="chat-input-container">
+                                <textarea 
+                                    id="studentChatInput" 
+                                    class="chat-input" 
+                                    placeholder="Ask a question about the document..."
+                                    disabled
+                                ></textarea>
+                                <button id="studentSendBtn" class="send-btn" disabled>
+                                    ➤
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Dashboard -->
+            <div id="adminDashboard" class="dashboard">
+                <div class="dashboard-header">
+                    <div class="user-info">
+                        <div class="user-avatar">A</div>
+                        <div>
+                            <h3 id="adminName">Admin</h3>
+                            <p>Administrator Panel</p>
+                        </div>
+                    </div>
+                    <div class="controls">
+                        <select id="adminLanguageSelect" class="language-selector">
+                            <option value="en">🇺🇸 English</option>
+                            <option value="hi">🇮🇳 Hindi (हिंदी)</option>
+                            <option value="mr">🇮🇳 Marathi (मराठी)</option>
+                            <option value="mwr">🇮🇳 Marwari (मारवाड़ी)</option>
+                        </select>
+                        <button class="logout-btn" onclick="logout()">Logout</button>
+                    </div>
+                </div>
+                <div class="dashboard-content">
+                    <div class="sidebar">
+                        <div class="admin-panel">
+                            <h3>📁 Upload Documents</h3>
+                            <div class="file-upload-area" id="fileUploadArea">
+                                <div class="upload-icon">📄</div>
+                                <p><strong>Drop PDF files here</strong></p>
+                                <p>or click to browse</p>
+                                <input type="file" id="fileInput" accept=".pdf" multiple style="display: none;">
+                            </div>
+                            <div id="uploadStatus"></div>
+                        </div>
+
+                        <div class="pdf-list">
+                            <h3>📚 Manage Documents</h3>
+                            <div id="adminPdfList">
+                                <!-- PDF list will be populated here -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-area">
+                        <div class="chat-messages" id="adminChatMessages">
+                            <div class="message bot">
+                                <div class="message-avatar">🤖</div>
+                                <div class="message-content">
+                                    <p>Welcome, Administrator! Upload PDF documents and test the chatbot functionality. Students will be able to access and ask questions about uploaded documents.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="loading" id="adminLoading">
+                            <div class="spinner"></div>
+                            Processing your question...
+                        </div>
+                        <div class="chat-input-area">
+                            <div class="chat-input-container">
+                                <textarea 
+                                    id="adminChatInput" 
+                                    class="chat-input" 
+                                    placeholder="Ask a question about any uploaded document..."
+                                ></textarea>
+                                <button id="adminSendBtn" class="send-btn">
+                                    ➤
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Application State
+        let currentUser = null;
+        let currentRole = null;
+        let currentLanguage = 'en';
+        let activePdf = null;
+        let uploadedPdfs = [];
+
+        // Mock user database
+        const users = {
+            admin: { password: 'admin123', role: 'admin', name: 'College Admin' },
+            student: { password: 'student123', role: 'student', name: 'Student User' },
+            admin1: { password: 'pass123', role: 'admin', name: 'Dr. Smith' },
+            john: { password: 'john123', role: 'student', name: 'John Doe' },
+            mary: { password: 'mary123', role: 'student', name: 'Mary Johnson' }
+        };
+
+        // Language translations
+        const translations = {
+            en: {
+                welcome: "Welcome! Select a document and ask questions.",
+                noDocuments: "No documents available",
+                askQuestion: "Ask a question about the document...",
+                processing: "Processing your question...",
+                uploadSuccess: "Document uploaded successfully!",
+                uploadError: "Error uploading document.",
+                selectDocument: "Please select a document first."
+            },
+            hi: {
+                welcome: "स्वागत है! एक दस्तावेज़ चुनें और प्रश्न पूछें।",
+                noDocuments: "कोई दस्तावेज़ उपलब्ध नहीं",
+                askQuestion: "दस्तावेज़ के बारे में प्रश्न पूछें...",
+                processing: "आपके प्रश्न को संसाधित कर रहे हैं...",
+                uploadSuccess: "दस्तावेज़ सफलतापूर्वक अपलोड किया गया!",
+                uploadError: "दस्तावेज़ अपलोड करने में त्रुटि।",
+                selectDocument: "कृपया पहले एक दस्तावेज़ चुनें।"
+            },
+            mr: {
+                welcome: "स्वागत आहे! एक दस्तऐवज निवडा आणि प्रश्न विचारा।",
+                noDocuments: "कोणतेही दस्तऐवज उपलब्ध नाहीत",
+                askQuestion: "दस्तऐवजाविषयी प्रश्न विचारा...",
+                processing: "तुमचा प्रश्न प्रक्रिया करत आहे...",
+                uploadSuccess: "दस्तऐवज यशस्वीरित्या अपलोड झाले!",
+                uploadError: "दस्तऐवज अपलोड करताना त्रुटी.",
+                selectDocument: "कृपया प्रथम एक दस्तऐवज निवडा."
+            },
+            mwr: {
+                welcome: "स्वागत है! एक दस्तावेज़ चुनें और सवाल पूछें।",
+                noDocuments: "कोई दस्तावेज़ उपलब्ध कोनी",
+                askQuestion: "दस्तावेज़ के बारे में सवाल पूछें...",
+                processing: "थारो सवाल देख रहे हैं...",
+                uploadSuccess: "दस्तावेज़ सफलता से अपलोड हुयो!",
+                uploadError: "दस्तावेज़ अपलोड में गड़बड़।",
+                selectDocument: "पहले एक दस्तावेज़ चुनो।"
+            }
+        };
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            // User type selector
+            document.querySelectorAll('.user-type-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.user-type-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Login form
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+
+            // File upload
+            const fileUploadArea = document.getElementById('fileUploadArea');
+            const fileInput = document.getElementById('fileInput');
+
+            fileUploadArea?.addEventListener('click', () => fileInput.click());
+            fileUploadArea?.addEventListener('dragover', handleDragOver);
+            fileUploadArea?.addEventListener('drop', handleFileDrop);
+            fileInput?.addEventListener('change', handleFileSelect);
+
+            // Chat inputs
+            setupChatInput('studentChatInput', 'studentSendBtn', sendStudentMessage);
+            setupChatInput('adminChatInput', 'adminSendBtn', sendAdminMessage);
+
+            // Language selectors
+            document.getElementById('studentLanguageSelect')?.addEventListener('change', changeLanguage);
+            document.getElementById('adminLanguageSelect')?.addEventListener('change', changeLanguage);
+
+            // Load mock data
+            loadMockPdfs();
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const userType = document.querySelector('.user-type-btn.active').dataset.type;
+
+            if (users[username] && users[username].password === password) {
+                if (users[username].role === userType) {
+                    currentUser = username;
+                    currentRole = userType;
+                    
+                    // Update user names
+                    if (userType === 'admin') {
+                        document.getElementById('adminName').textContent = users[username].name;
+                        showDashboard('adminDashboard');
+                    } else {
+                        document.getElementById('studentName').textContent = users[username].name;
+                        showDashboard('studentDashboard');
+                        updateAvailablePdfs();
+                    }
+                } else {
+                    alert('Invalid user type for this account');
+                }
+            } else {
+                alert('Invalid credentials');
+            }
+        }
+
+        function showDashboard(dashboardId) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById(dashboardId).classList.add('active');
+        }
+
+        function logout() {
+            currentUser = null;
+            currentRole = null;
+            currentLanguage = 'en';
+            activePdf = null;
+
+            // Reset forms and show login
+            document.getElementById('loginForm').reset();
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.querySelectorAll('.dashboard').forEach(d => d.classList.remove('active'));
+        }
+
+        function setupChatInput(inputId, btnId, handler) {
+            const input = document.getElementById(inputId);
+            const btn = document.getElementById(btnId);
+
+            input?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                            const chat = document.getElementById("studentChatInput").value;
+                            console.log("Sending chat:", chat); // Log the chat being sent
+                            fetch("/chat", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({ chat: chat })
+                            })
+                            .then(res => res.json())      // Parse JSON response
+                            .then(data => {
+                                // render the response in the chat area
+                                console.log("Response data:", data); // Log the response data
+                                const chatMessages = document.getElementById("studentChatMessages");
+                                const userMessage = document.createElement("div");
+                                userMessage.classList.add("message", "user");
+                                userMessage.innerHTML = `
+                                    <div class="message-avatar">👨‍🎓</div>
+                                    <div class="message-content">
+                                        <p>${chat}</p>
+                                    </div>
+                                `; 
+                                chatMessages.appendChild(userMessage);
+                                const botMessage = document.createElement("div");
+                                botMessage.classList.add("message", "bot");
+                                botMessage.innerHTML = `
+                                    <div class="message-avatar">🤖</div>
+                                    <div class="message-content">
+                                        <p>${data.answer}</p>
+                                        <div class="confidence
+-score">Confidence: ${data.confidence}</div>
+                                    </div>`
+                                chatMessages.appendChild(botMessage);
+                                chatMessages.scrollTop = chatMessages.scrollHeight;
+                            })
+                            .catch(err => console.error("Error:", err));
+                }
+            });
+
+            btn?.addEventListener('click', handler);
+        }
+
+        function changeLanguage(e) {
+            currentLanguage = e.target.value;
+            updateLanguageInterface();
+        }
+
+        function updateLanguageInterface() {
+            const t = translations[currentLanguage] || translations['en'];
+            
+            // Update placeholders and text based on current language
+            const studentInput = document.getElementById('studentChatInput');
+            const adminInput = document.getElementById('adminChatInput');
+            
+            if (studentInput) studentInput.placeholder = t.askQuestion;
+            if (adminInput) adminInput.placeholder = t.askQuestion;
+
+            // Update loading messages
+            const studentLoading = document.getElementById('studentLoading');
+            const adminLoading = document.getElementById('adminLoading');
+            
+            if (studentLoading) studentLoading.innerHTML = `<div class="spinner"></div>${t.processing}`;
+            if (adminLoading) adminLoading.innerHTML = `<div class="spinner"></div>${t.processing}`;
+        }
+
+        // File upload handlers
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('dragover');
+        }
+
+        function handleFileDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            processFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            processFiles(e.target.files);
+        }
+
+        function processFiles(files) {
+            Array.from(files).forEach(file => {
+                if (file.type === 'application/pdf') {
+                    uploadPdf(file);
+                }
+            });
+        }
+
+        function uploadPdf(file) {
+            // Simulate PDF processing
+            const statusDiv = document.getElementById('uploadStatus');
+            statusDiv.innerHTML = '<div class="status-message">Processing PDF...</div>';
+
+            setTimeout(() => {
+                const pdfData = {
+                    id: Date.now(),
+                    name: file.name,
+                    size: file.size,
+                    uploadDate: new Date().toLocaleDateString(),
+                    active: false
+                };
+
+                uploadedPdfs.push(pdfData);
+                updatePdfList();
+                
+                const t = translations[currentLanguage] || translations['en'];
+                statusDiv.innerHTML = `<div class="status-message success">${t.uploadSuccess}</div>`;
+                
+                setTimeout(() => statusDiv.innerHTML = '', 3000);
+            }, 2000);
+        }
+
+        function updatePdfList() {
+            const adminList = document.getElementById('adminPdfList');
+            
+            if (uploadedPdfs.length === 0) {
+                const t = translations[currentLanguage] || translations['en'];
+                adminList.innerHTML = `<p style="text-align: center; color: #6c757d; padding: 20px;">${t.noDocuments}</p>`;
+                return;
+            }
+
+            adminList.innerHTML = uploadedPdfs.map(pdf => `
+                <div class="pdf-item">
+                    <div>
+                        <div class="pdf-name">${pdf.name}</div>
+                        <small style="color: #6c757d;">Uploaded: ${pdf.uploadDate}</small>
+                    </div>
+                    <div class="pdf-actions">
+                        <button class="btn-small ${pdf.active ? 'btn-delete' : 'btn-activate'}" 
+                                onclick="${pdf.active ? 'deactivatePdf' : 'activatePdf'}(${pdf.id})">
+                            ${pdf.active ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button class="btn-small btn-delete" onclick="deletePdf(${pdf.id})">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateAvailablePdfs() {
+            const availableDiv = document.getElementById('availablePdfs');
+            const activePdfs = uploadedPdfs.filter(pdf => pdf.active);
+            
+            if (activePdfs.length === 0) {
+                const t = translations[currentLanguage] || translations['en'];
+                availableDiv.innerHTML = `<p style="text-align: center; color: #6c757d; padding: 20px;">${t.noDocuments}</p>`;
+                return;
+            }
+
+            availableDiv.innerHTML = activePdfs.map(pdf => `
+                <div class="pdf-item ${activePdf === pdf.id ? 'active' : ''}" 
+                     onclick="selectPdf(${pdf.id})" style="cursor: pointer;">
+                    <div>
+                        <div class="pdf-name">📄 ${pdf.name}</div>
+                        <small style="color: #6c757d;">Available for chat</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function activatePdf(id) {
+            const pdf = uploadedPdfs.find(p => p.id === id);
+            if (pdf) {
+                pdf.active = true;
+                updatePdfList();
+                updateAvailablePdfs();
+            }
+        }
+
+        function deactivatePdf(id) {
+            const pdf = uploadedPdfs.find(p => p.id === id);
+            if (pdf) {
+                pdf.active = false;
+                if (activePdf === id) {
+                    activePdf = null;
+                    document.getElementById('studentChatInput').disabled = true;
+                    document.getElementById('studentSendBtn').disabled = true;
+                }
+                updatePdfList();
+                updateAvailablePdfs();
+            }
+        }
+
+        function deletePdf(id) {
+            if (confirm('Are you sure you want to delete this document?')) {
+                uploadedPdfs = uploadedPdfs.filter(p => p.id !== id);
+                if (activePdf === id) {
+                    activePdf = null;
+                    document.getElementById('studentChatInput').disabled = true;
+                    document.getElementById('studentSendBtn').disabled = true;
+                }
+                updatePdfList();
+                updateAvailablePdfs();
+            }
+        }
+
+        function selectPdf(id) {
+            activePdf = id;
+            const pdf = uploadedPdfs.find(p => p.id === id);
+            
+            // Update UI
+            updateAvailablePdfs();
+            
+            // Enable chat input
+            const chatInput = document.getElementById('studentChatInput');
+            const sendBtn = document.getElementById('studentSendBtn');
+            chatInput.disabled = false;
+            sendBtn.disabled = false;
+            
+            // Add selection message
+            const chatMessages = document.getElementById('studentChatMessages');
+            const t = translations[currentLanguage] || translations['en'];
+            
+            addMessage('studentChatMessages', 'bot', `Document "${pdf.name}" selected. You can now ask questions about it!`);
+        }
+
+        function sendStudentMessage() {
+            const input = document.getElementById('studentChatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            if (!activePdf) {
+                const t = translations[currentLanguage] || translations['en'];
+                alert(t.selectDocument);
+                return;
+            }
+
+            // Add user message
+            addMessage('studentChatMessages', 'user', message);
+            input.value = '';
+
+            // Show loading
+            document.getElementById('studentLoading').classList.add('active');
+            
+            // Simulate API call to Python backend
+            simulateApiCall(message, 'student');
+        }
+
+        function sendAdminMessage() {
+            const input = document.getElementById('adminChatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            // Add user message
+            addMessage('adminChatMessages', 'user', message);
+            input.value = '';
+
+            // Show loading
+            document.getElementById('adminLoading').classList.add('active');
+            
+            // Simulate API call to Python backend
+            simulateApiCall(message, 'admin');
+        }
+
+        function simulateApiCall(question, userType) {
+            // This would be replaced with actual API call to your Python backend
+            setTimeout(() => {
+                // Hide loading
+                document.getElementById(`${userType}Loading`).classList.remove('active');
+                
+                // Generate mock response based on language
+                const responses = {
+                    en: [
+                        "Based on the document analysis, here's what I found...",
+                        "The document indicates that...",
+                        "According to the information in the PDF...",
+                        "The main points discussed include..."
+                    ],
+                    hi: [
+                        "दस्तावेज़ विश्लेषण के आधार पर, मुझे यह मिला...",
+                        "दस्तावेज़ इंगित करता है कि...",
+                        "PDF में जानकारी के अनुसार...",
+                        "मुख्य बिंदुओं में शामिल हैं..."
+                    ],
+                    mr: [
+                        "दस्तऐवज विश्लेषणानुसार, मला हे सापडले...",
+                        "दस्तऐवज सूचित करतो की...",
+                        "PDF मधील माहितीनुसार...",
+                        "मुख्य मुद्द्यांमध्ये समावेश आहे..."
+                    ],
+                    mwr: [
+                        "दस्तावेज़ देखण के बाद, मनै यो मिल्यो...",
+                        "दस्तावेज़ में लिख्यो है कि...",
+                        "PDF की जानकारी के मुताबिक...",
+                        "मुख्य बातां में शामिल है..."
+                    ]
+                };
+
+                const langResponses = responses[currentLanguage] || responses['en'];
+                const randomResponse = langResponses[Math.floor(Math.random() * langResponses.length)];
+                const confidence = (Math.random() * 0.3 + 0.7).toFixed(3); // Random confidence between 0.7-1.0
+
+                addMessage(`${userType}ChatMessages`, 'bot', randomResponse, confidence);
+            }, 2000);
+        }
+
+        function addMessage(containerId, type, text, confidence = null) {
+            const container = document.getElementById(containerId);
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            
+            const avatar = type === 'user' ? (currentRole === 'admin' ? 'A' : 'S') : '🤖';
+            
+            let confidenceHtml = '';
+            if (confidence && type === 'bot') {
+                const confidenceText = currentLanguage === 'hi' ? 'विश्वास स्तर' :
+                                     currentLanguage === 'mr' ? 'विश्वास पातळी' :
+                                     currentLanguage === 'mwr' ? 'भरोसो' : 'Confidence';
+                confidenceHtml = `<div class="confidence-score">🎯 ${confidenceText}: ${confidence}</div>`;
+            }
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${avatar}</div>
+                <div class="message-content">
+                    <p>${text}</p>
+                    ${confidenceHtml}
+                </div>
+            `;
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function loadMockPdfs() {
+            // Add some sample PDFs for demonstration
+            const mockPdfs = [
+                {
+                    id: 1,
+                    name: 'RCOE Brochure.pdf',
+                    size: 2048576,
+                    uploadDate: '2024-01-15',
+                    active: true
+                }
+            ];
+            
+            uploadedPdfs = mockPdfs;
+            updatePdfList();
+            updateAvailablePdfs();
+        }
+
+        // Add CSS for active PDF selection
+        const additionalStyles = `
+            <style>
+                .pdf-item.active {
+                    background: #e3f2fd !important;
+                    border-left: 4px solid #4facfe;
+                }
+                
+                .pdf-item.active .pdf-name {
+                    color: #0277bd;
+                    font-weight: 600;
+                }
+
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+
+                .message {
+                    animation: fadeIn 0.3s ease-out;
+                }
+
+                .status-message {
+                    animation: fadeIn 0.3s ease-out;
+                }
+
+                /* Enhanced mobile responsiveness */
+                @media (max-width: 480px) {
+                    .header h1 {
+                        font-size: 1.8em;
+                    }
+                    
+                    .login-container {
+                        padding: 20px;
+                    }
+                    
+                    .dashboard-content {
+                        padding: 10px;
+                    }
+                    
+                    .chat-input {
+                        font-size: 14px;
+                    }
+                    
+                    .message-content {
+                        max-width: 85%;
+                    }
+                }
+
+                /* Custom scrollbar for chat */
+                .chat-messages::-webkit-scrollbar {
+                    width: 6px;
+                }
+
+                .chat-messages::-webkit-scrollbar-track {
+                    background: #f1f1f1;
+                    border-radius: 10px;
+                }
+
+                .chat-messages::-webkit-scrollbar-thumb {
+                    background: #4facfe;
+                    border-radius: 10px;
+                }
+
+                .chat-messages::-webkit-scrollbar-thumb:hover {
+                    background: #0277bd;
+                }
+            </style>
+        `;
+        
+        document.head.insertAdjacentHTML('beforeend', additionalStyles);
+
+        // Add demo credentials info
+        function showDemoCredentials() {
+            const demoInfo = document.createElement('div');
+            demoInfo.innerHTML = `
+                <div style="position: fixed; top: 10px; right: 10px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 1000; max-width: 300px;">
+                    <h4 style="margin-bottom: 10px; color: #333;">Demo Credentials</h4>
+                    <div style="font-size: 12px; color: #666;">
+                        <strong>Admin:</strong><br>
+                        Username: admin | Password: admin123<br><br>
+                        <strong>Student:</strong><br>
+                        Username: student | Password: student123
+                    </div>
+                    <button onclick="this.parentElement.remove()" style="position: absolute; top: 5px; right: 5px; border: none; background: none; cursor: pointer; font-size: 16px;">×</button>
+                </div>
+            `;
+            document.body.appendChild(demoInfo);
+            
+            // Auto-remove after 10 seconds
+            setTimeout(() => {
+                if (demoInfo.parentElement) {
+                    demoInfo.remove();
+                }
+            }, 10000);
+        }
+
+        // Show demo credentials on load
+        setTimeout(showDemoCredentials, 1000);
+
+        /*
+        API Integration Guide:
+        =====================
+        
+        To integrate this frontend with your Python backend, replace the simulateApiCall function
+        with actual HTTP requests to your Flask/FastAPI endpoints:
+
+        async function callPythonAPI(question, pdfId, language) {
+            try {
+                const response = await fetch('/api/ask-question', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        question: question,
+                        pdf_id: pdfId,
+                        language: language,
+                        user_id: currentUser
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('API call failed');
+                }
+                
+                return await response.json();
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+
+        Backend API Endpoints needed:
+        - POST /api/upload-pdf (admin only)
+        - POST /api/ask-question (student/admin)
+        - GET /api/available-pdfs (student)
+        - GET /api/manage-pdfs (admin only)
+        - POST /api/activate-pdf (admin only)
+        - DELETE /api/delete-pdf (admin only)
+        - POST /api/login
+        */
+    </script>
+</body>
+</html>
