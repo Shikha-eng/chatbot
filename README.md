@@ -19,12 +19,12 @@ It supports image-based search, voice-based search, WhatsApp integration, and mu
 
 🏗️ Tech Stack
 
-Backend: Python (Flask / FastAPI or your chosen framework)
+Backend: Python (Flask )
 
-Frontend: HTML, CSS, JavaScript (or React if you’ve built a UI)
+Frontend: HTML, CSS, JavaScript ,React
 
-Database: MongoDB / MySQL (choose the one you used)
+Database: MongoDB / MySQL 
 
 NLP & AI: LangChain / Hugging Face models for language understanding
 
-Others: OpenAI / Llama models (for PDF reading & answering
+Others: OpenAI / Llama models (for PDF reading & answering)
